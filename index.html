@@ -1,0 +1,2521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>笨蔚的问卷</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F9F7FD;--surface:#FFFFFF;--surface-2:#F6F3FB;--surface-3:#EDE8F6;
+  --ink:#2D2440;--ink-2:#6B5B8C;--ink-3:#A99BC4;
+  --line:#EBE6F4;--line-2:#F2EEF8;
+  --accent:#C3BDE4;--accent-deep:#8B7BC4;--accent-ink:#4A3B7A;--accent-soft:#EBE7F5;
+  --danger:#C96B8A;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:'Noto Serif SC',-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(circle at 12% -5%, #F1ECFA 0%, transparent 55%),
+    radial-gradient(circle at 88% 105%, #EDE7F8 0%, transparent 55%);
+  background-attachment:fixed;color:var(--ink);font-size:14px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  visibility:hidden;
+}
+body.ready{visibility:visible;}
+button,input,textarea,select{font-family:inherit;color:inherit;outline:none;border:none;background:none;-webkit-appearance:none;appearance:none;}
+button{cursor:pointer;}
+.hide{display:none !important;}
+
+/* ================= 登录页 ================= */
+.login-view{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px;}
+.login-card{
+  width:100%;max-width:360px;background:rgba(255,255,255,0.95);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border:1px solid var(--line);padding:34px 26px 28px;
+  box-shadow:0 24px 60px rgba(139,123,196,0.18);text-align:center;
+}
+.login-title{font-size:18px;font-weight:500;color:var(--accent-ink);letter-spacing:1px;margin-bottom:6px;}
+.login-sub{font-size:12px;color:var(--ink-3);margin-bottom:26px;}
+.avatar-picker{
+  position:relative;width:100px;height:100px;margin:0 auto 22px;border-radius:50%;
+  overflow:hidden;cursor:pointer;background:var(--surface-2);
+  border:2px dashed var(--accent);display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s,background .2s;
+}
+.avatar-picker:hover{background:var(--accent-soft);border-color:var(--accent-deep);}
+.avatar-picker.has-img{border-style:solid;border-color:var(--accent-deep);}
+.avatar-picker img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0;}
+.avatar-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--accent-deep);font-size:11px;pointer-events:none;}
+.avatar-ph .plus{font-size:22px;line-height:1;font-weight:300;}
+.text-input{
+  width:100%;height:46px;padding:0 14px;background:var(--surface-2);
+  border:1px solid var(--line);font-size:15px;color:var(--ink);
+  margin-bottom:18px;text-align:center;transition:border-color .2s,background .2s;
+}
+.text-input:focus{border-color:var(--accent-deep);background:#fff;}
+.text-input::placeholder{color:var(--ink-3);font-size:13px;}
+.btn-primary{
+  width:100%;height:46px;background:var(--accent-deep);color:#fff;
+  font-size:14.5px;letter-spacing:2px;transition:background .2s,opacity .2s;
+}
+.btn-primary:hover{background:var(--accent-ink);}
+.btn-primary:active{opacity:.85;}
+
+/* ================= 主应用 ================= */
+.app-view{min-height:100%;display:flex;flex-direction:column;}
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;gap:10px;
+  padding:0 14px;padding-top:env(safe-area-inset-top);
+  min-height:60px;
+  background:rgba(249,247,253,0.92);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.top-avatar{
+  width:38px;height:38px;flex:0 0 38px;border-radius:50%;overflow:hidden;
+  background:var(--accent-soft);border:1.5px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--accent-ink);font-size:15px;font-weight:600;
+}
+.top-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+.top-name{
+  flex:1;min-width:0;font-size:14.5px;font-weight:500;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.top-name small{display:block;font-size:11px;font-weight:300;color:var(--ink-3);margin-top:1px;}
+.edit-name{cursor:pointer;padding:4px 8px;border-radius:6px;transition:background .18s;font-size:15px;}
+.edit-name:hover{background:var(--accent-soft);}
+
+.icon-btn{
+  width:34px;height:34px;flex:0 0 34px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ink-2);
+  border:1px solid var(--line);
+  background:rgba(255,255,255,0.7);
+  border-radius:6px;
+  transition:background .2s;
+}
+.icon-btn:hover{background:var(--accent-soft);color:var(--accent-ink);}
+.icon-btn svg{width:18px;height:18px;display:block;}
+.icon-btn svg circle{fill:currentColor;}
+.icon-btn.back svg{width:16px;height:16px;}
+.icon-btn.back svg path{stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;fill:none;}
+
+.main-scroll{flex:1;width:100%;max-width:680px;margin:0 auto;padding:16px 14px 130px;}
+
+/* ================= 表单列表 ================= */
+.empty-state{padding:60px 20px;text-align:center;color:var(--ink-3);}
+.empty-icon{font-size:42px;margin-bottom:14px;opacity:.55;font-weight:300;}
+.empty-t{font-size:15px;color:var(--ink-2);margin-bottom:6px;font-weight:500;}
+.empty-d{font-size:12.5px;line-height:1.8;}
+
+.form-card{
+  position:relative;background:rgba(255,255,255,0.94);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  border:1px solid var(--line);padding:16px 46px 16px 16px;
+  margin-bottom:12px;box-shadow:0 4px 18px rgba(139,123,196,0.07);
+  cursor:pointer;transition:all .2s;
+}
+.form-card:hover{border-color:var(--accent);box-shadow:0 8px 28px rgba(139,123,196,0.16);transform:translateY(-2px);}
+.fc-main{min-width:0;}
+.fc-name{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fc-meta{font-size:11.5px;color:var(--ink-3);margin-bottom:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+.fc-bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;}
+.fc-fill{height:100%;background:linear-gradient(90deg,#C3BDE4,#8B7BC4);border-radius:2px;transition:width .3s;}
+
+.fc-more{
+  position:absolute;top:12px;right:12px;
+  width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ink-3);border-radius:6px;transition:all .15s;
+}
+.fc-more:hover{background:var(--accent-soft);color:var(--accent-ink);}
+.fc-more svg{width:18px;height:18px;display:block;}
+.fc-more svg circle{fill:currentColor;}
+
+/* ================= 问卷卡片 ================= */
+.q-card{
+  background:rgba(255,255,255,0.94);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  border:1px solid var(--line);padding:18px 16px 18px;margin-bottom:14px;
+  box-shadow:0 4px 18px rgba(139,123,196,0.07);
+}
+.q-head{display:flex;gap:10px;align-items:flex-start;}
+.q-num{
+  width:26px;height:26px;flex:0 0 26px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent-ink);font-size:12px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-top:1px;
+}
+.q-headtext{flex:1;min-width:0;}
+.q-title{font-size:15px;font-weight:600;color:var(--ink);line-height:1.4;}
+.q-desc{font-size:12px;color:var(--ink-3);margin-top:4px;line-height:1.65;}
+.q-body{margin-top:14px;}
+
+.box-list{display:flex;flex-direction:column;gap:8px;}
+.box-row{display:flex;gap:8px;align-items:flex-start;}
+.box-input{
+  flex:1;min-width:0;min-height:46px;padding:11px 12px;background:var(--surface-2);
+  border:1px solid var(--line);font-size:15px;line-height:1.6;color:var(--ink);
+  resize:none;overflow:hidden;display:block;
+  transition:border-color .2s,background .2s;word-break:break-word;
+}
+.box-input:focus{border-color:var(--accent-deep);background:#fff;}
+.box-input::placeholder{color:var(--ink-3);font-size:13px;}
+.box-del{
+  flex:0 0 34px;width:34px;height:46px;display:flex;align-items:center;justify-content:center;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--ink-3);
+  font-size:18px;line-height:1;transition:all .18s;
+}
+.box-del:hover{color:var(--danger);border-color:#E8C4CE;background:#FBEEF2;}
+.add-box-btn{
+  width:100%;height:40px;margin-top:8px;border:1px dashed var(--accent);
+  background:rgba(246,243,251,0.7);color:var(--accent-deep);font-size:13px;
+  display:flex;align-items:center;justify-content:center;gap:5px;transition:all .18s;
+}
+.add-box-btn:hover{background:var(--accent-soft);border-color:var(--accent-deep);color:var(--accent-ink);}
+
+.tag-area{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);}
+.tag-area-head{font-size:11.5px;color:var(--ink-3);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.tag-area-head::before{content:'';width:3px;height:12px;background:var(--accent);display:block;}
+.tag-wrap{display:flex;flex-wrap:wrap;gap:7px;}
+.tag{
+  padding:5px 12px;background:var(--surface-2);border:1px solid var(--line);
+  color:var(--ink-2);font-size:12.5px;transition:all .16s;
+}
+.tag:hover{border-color:var(--accent-deep);color:var(--accent-ink);background:var(--accent-soft);}
+.tag.on{background:var(--accent-deep);border-color:var(--accent-deep);color:#fff;font-weight:500;}
+
+.media-area{margin-top:14px;}
+.media-head{font-size:11.5px;color:var(--ink-3);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.media-head::before{content:'';width:3px;height:12px;background:var(--accent);display:block;}
+.media-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));
+  gap:9px;margin-bottom:10px;
+}
+.media-item{
+  position:relative;aspect-ratio:1/1;border:1px solid var(--line);
+  overflow:hidden;background:var(--surface-2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.media-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.media-loading{
+  font-size:11px;color:var(--ink-3);
+  display:flex;align-items:center;justify-content:center;
+  width:100%;height:100%;
+}
+.media-video-thumb{
+  width:100%;height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;
+  background:linear-gradient(135deg,#EDE7F8,#C3BDE4);color:#fff;font-size:11px;
+}
+.media-video-thumb .icon{font-size:10px;line-height:1;font-weight:600;letter-spacing:1.5px;}
+.media-video-thumb .name{
+  font-size:9px;padding:0 4px;max-width:100%;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.media-tag{
+  position:absolute;left:4px;bottom:4px;font-size:9.5px;padding:1px 5px;
+  background:rgba(45,36,64,0.55);color:#fff;border-radius:3px;
+  pointer-events:none;font-family:ui-monospace,monospace;
+}
+.media-del{
+  position:absolute;top:4px;right:4px;width:21px;height:21px;border-radius:50%;
+  background:rgba(45,36,64,0.62);color:#fff;font-size:13px;line-height:1;
+  display:flex;align-items:center;justify-content:center;transition:background .18s;z-index:2;
+}
+.media-del:hover{background:var(--danger);}
+.media-actions{display:flex;flex-wrap:wrap;gap:7px;}
+.media-btn{
+  height:34px;padding:0 12px;border:1px solid var(--line);background:var(--surface-2);
+  color:var(--accent-ink);font-size:12.5px;display:flex;align-items:center;gap:5px;
+  transition:all .16s;white-space:nowrap;
+}
+.media-btn:hover{background:var(--accent-soft);border-color:var(--accent-deep);}
+.media-hint{margin-top:8px;font-size:11px;color:var(--ink-3);line-height:1.6;}
+.media-hint b{color:var(--accent-deep);font-weight:500;}
+
+.doc-btn{
+  width:100%;height:40px;margin-top:8px;
+  border:1px solid var(--accent);background:var(--accent-soft);
+  color:var(--accent-ink);font-size:13px;
+  display:flex;align-items:center;justify-content:center;gap:6px;transition:all .18s;
+}
+.doc-btn:hover{background:var(--accent);color:#fff;}
+
+.footer-bar{
+  position:fixed;left:0;right:0;bottom:0;z-index:35;
+  padding:10px 14px;padding-bottom:calc(10px + env(safe-area-inset-bottom));
+  background:rgba(249,247,253,0.92);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;
+}
+.footer-inner{width:100%;max-width:680px;margin:0 auto;display:flex;align-items:center;gap:10px;}
+.prog-text{
+  flex:1;min-width:0;font-size:12px;color:var(--ink-3);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.prog-text b{color:var(--accent-deep);font-weight:600;}
+.btn-ghost{
+  height:44px;padding:0 16px;flex:0 0 auto;border:1px solid var(--line);
+  background:var(--surface-2);color:var(--ink-2);font-size:13px;
+  white-space:nowrap;transition:all .18s;
+  display:flex;align-items:center;gap:6px;
+}
+.btn-ghost:hover{background:var(--surface-3);color:var(--accent-ink);border-color:var(--accent);}
+.footer-bar .btn-primary{
+  width:auto;min-width:120px;padding:0 20px;height:44px;letter-spacing:1px;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+
+.modal-mask{
+  position:fixed;inset:0;z-index:600;background:rgba(45,36,64,0.4);
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  animation:fadeIn .18s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-box{
+  width:100%;max-width:340px;background:var(--surface);
+  border:1px solid var(--line);padding:24px 22px 20px;
+  box-shadow:0 24px 60px rgba(45,36,64,0.25);
+  animation:popIn .2s cubic-bezier(.2,.9,.3,1.2);
+}
+.modal-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:14px;}
+.modal-msg{font-size:13px;color:var(--ink-2);line-height:1.75;margin-bottom:16px;white-space:pre-wrap;}
+.modal-input{
+  width:100%;height:44px;padding:0 12px;background:var(--surface-2);
+  border:1px solid var(--line);font-size:15px;color:var(--ink);margin-bottom:18px;
+}
+.modal-input:focus{border-color:var(--accent-deep);background:#fff;}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+.modal-actions button{
+  height:40px;padding:0 20px;font-size:13.5px;border:1px solid var(--line);
+  background:var(--surface-2);color:var(--ink-2);transition:all .18s;
+}
+.modal-actions button:hover{background:var(--surface-3);}
+.modal-actions button.primary{background:var(--accent-deep);border-color:var(--accent-deep);color:#fff;}
+.modal-actions button.primary:hover{background:var(--accent-ink);}
+.modal-actions button.danger{background:var(--danger);border-color:var(--danger);color:#fff;}
+
+.modal-textarea{
+  width:100%;min-height:180px;padding:12px;
+  background:var(--surface-2);border:1px solid var(--line);
+  font-size:13px;line-height:1.7;color:var(--ink);
+  resize:vertical;margin-bottom:18px;font-family:inherit;
+}
+.modal-textarea:focus{border-color:var(--accent-deep);background:#fff;}
+
+.q-pick{
+  width:100%;padding:12px 14px;border:1px solid var(--line);
+  background:var(--surface-2);text-align:left;font-size:13.5px;
+  color:var(--ink-2);transition:all .15s;display:block;
+}
+.q-pick:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);}
+.q-pick b{color:var(--accent-deep);font-family:ui-monospace,monospace;margin-right:6px;}
+
+.cropper-overlay{
+  position:fixed;inset:0;z-index:900;background:rgba(20,15,32,0.82);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;padding:18px;
+  animation:fadeIn .2s ease;
+}
+.cropper-panel{
+  width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);
+  padding:22px 20px 20px;display:flex;flex-direction:column;align-items:center;
+  box-shadow:0 24px 60px rgba(45,36,64,0.45);
+  animation:popIn .22s cubic-bezier(.2,.9,.3,1.2);
+}
+.cropper-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.cropper-hint{font-size:11.5px;color:var(--ink-3);margin-bottom:16px;}
+.cropper-stage{
+  position:relative;overflow:hidden;
+  background:linear-gradient(45deg,#E8E0F5 25%,transparent 25%),linear-gradient(-45deg,#E8E0F5 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#E8E0F5 75%),linear-gradient(-45deg,transparent 75%,#E8E0F5 75%);
+  background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;
+  background-color:#F6F3FB;touch-action:none;user-select:none;-webkit-user-select:none;
+  cursor:grab;border:1px solid var(--line);
+}
+.cropper-stage:active{cursor:grabbing;}
+.cropper-img{position:absolute;left:0;top:0;pointer-events:none;user-select:none;-webkit-user-drag:none;max-width:none;will-change:width,height,left,top;}
+.cropper-mask{position:absolute;inset:0;pointer-events:none;z-index:2;display:block;}
+.cropper-zoom{width:100%;margin-top:18px;display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--ink-3);}
+.cropper-zoom input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:4px;background:var(--line);border-radius:2px;outline:none;padding:0;}
+.cropper-zoom input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--accent-deep);border-radius:50%;cursor:pointer;border:2px solid #fff;box-shadow:0 2px 8px rgba(139,123,196,.4);}
+.cropper-zoom input[type=range]::-moz-range-thumb{width:16px;height:16px;background:var(--accent-deep);border-radius:50%;cursor:pointer;border:2px solid #fff;}
+.cropper-actions{width:100%;margin-top:18px;display:flex;gap:10px;}
+.cropper-btn{flex:1;height:44px;font-size:14px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);transition:all .18s;}
+.cropper-btn:hover{background:var(--surface-3);}
+.cropper-btn.primary{background:var(--accent-deep);border-color:var(--accent-deep);color:#fff;}
+.cropper-btn.primary:hover{background:var(--accent-ink);}
+
+.popup-mask{position:fixed;inset:0;z-index:500;background:rgba(45,36,64,0.18);-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);animation:fadeIn .15s ease;}
+.popup-panel{position:absolute;min-width:200px;background:var(--surface);border:1px solid var(--line);box-shadow:0 16px 46px rgba(45,36,64,0.2);padding:5px 0;animation:slideDown .18s ease;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.popup-item{
+  width:100%;padding:12px 18px;font-size:13.5px;color:var(--ink-2);
+  text-align:left;display:block;transition:background .15s,color .15s;
+}
+.popup-item:hover{background:var(--surface-2);color:var(--accent-ink);}
+.popup-item.danger{color:var(--danger);}
+.popup-item.danger:hover{background:#FBEEF2;}
+.popup-sep{height:1px;background:var(--line-2);margin:4px 0;}
+
+.media-viewer{
+  position:fixed;inset:0;z-index:800;background:rgba(20,15,32,0.92);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  animation:fadeIn .18s ease;cursor:zoom-out;
+}
+.media-viewer img,.media-viewer video{
+  max-width:100%;max-height:100%;object-fit:contain;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+
+.toast{
+  position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--accent-deep);color:#fff;padding:11px 22px;font-size:13px;z-index:950;
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;
+  max-width:calc(100vw - 40px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  box-shadow:0 8px 26px rgba(139,123,196,.35);border-radius:22px;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.save-indicator{
+  position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;
+  transform:translateX(-50%) translateY(-10px);
+  background:rgba(45,36,64,0.82);color:#fff;
+  padding:6px 14px;font-size:11.5px;border-radius:20px;
+  z-index:1100;opacity:0;pointer-events:none;
+  transition:opacity .2s, transform .2s;
+  font-family:ui-monospace,monospace;
+}
+.save-indicator.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media (max-width:400px){
+  .btn-ghost{padding:0 12px;font-size:12.5px;}
+  .footer-bar .btn-primary{min-width:104px;padding:0 14px;font-size:13.5px;}
+  .prog-text{font-size:11.5px;}
+  .media-btn{padding:0 9px;font-size:12px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 登录页 ============ -->
+<div class="login-view" id="loginView">
+  <div class="login-card">
+    <div class="login-title">𝒮ℯ𝓁ℯ𝒸𝓉 𝓌𝒽𝒶𝓉 𝓎ℴ𝓊 𝓌𝒶𝓃𝓉</div>
+    <div class="login-sub">填好头像和名字，就可以开始啦</div>
+
+    <div class="avatar-picker" id="loginAvatarPicker">
+      <img id="loginAvatarImg" class="hide" alt="">
+      <div class="avatar-ph" id="loginAvatarPh">
+        <span class="plus">＋</span>
+        <span>从相册选择头像</span>
+      </div>
+    </div>
+
+    <input class="text-input" id="loginName" type="text" placeholder="你的名字" maxlength="20" autocomplete="off">
+
+    <button class="btn-primary" id="loginBtn" type="button">进 入</button>
+  </div>
+</div>
+
+<!-- ============ 表单列表页 ============ -->
+<div class="app-view hide" id="listView">
+  <header class="topbar">
+    <div class="top-avatar" id="listAvatar"></div>
+    <div class="top-name" id="listName"></div>
+    <button class="icon-btn" id="listMenuBtn" type="button" aria-label="菜单">
+      <svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg>
+    </button>
+  </header>
+  <main class="main-scroll" id="formList"></main>
+  <footer class="footer-bar">
+    <div class="footer-inner">
+      <div class="prog-text" id="listInfo">共 0 份</div>
+      <button class="btn-ghost" id="exportAllBtn" type="button">导出全部</button>
+      <button class="btn-primary" id="newFormBtn" type="button">新建表单</button>
+    </div>
+  </footer>
+</div>
+
+<!-- ============ 编辑页 ============ -->
+<div class="app-view hide" id="editView">
+  <header class="topbar">
+    <button class="icon-btn back" id="backBtn" type="button" aria-label="返回">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="top-name edit-name" id="editName"></div>
+    <button class="icon-btn" id="editMenuBtn" type="button" aria-label="菜单">
+      <svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg>
+    </button>
+  </header>
+  <main class="main-scroll" id="qList"></main>
+  <footer class="footer-bar">
+    <div class="footer-inner">
+      <div class="prog-text" id="progText">已完成 <b>0</b> / 9</div>
+      <button class="btn-primary" id="saveBackBtn" type="button">保存并返回</button>
+    </div>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="save-indicator" id="saveIndicator">保存中…</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   一、存储层
+   localStorage：state 结构（同步保存）
+   IndexedDB：媒体 Blob（容量大）
+   ============================================================ */
+const LS_KEY  = 'benwei_survey_state_v3';
+const LS_BACKUP = 'benwei_survey_state_v3_backup';
+
+const DB_NAME    = 'benwei_survey_media_db';
+const DB_VERSION = 1;
+const STORE_MEDIA = 'media';
+
+let dbPromise = null;
+function openDB(){
+  if(dbPromise) return dbPromise;
+  dbPromise = new Promise((resolve, reject) => {
+    let req;
+    try{ req = indexedDB.open(DB_NAME, DB_VERSION); }
+    catch(e){ reject(e); return; }
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if(!db.objectStoreNames.contains(STORE_MEDIA)){
+        db.createObjectStore(STORE_MEDIA);
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror   = () => reject(req.error);
+    req.onblocked = () => reject(new Error('IndexedDB 被阻塞'));
+  });
+  return dbPromise;
+}
+function idbPutMedia(id, record){
+  return openDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_MEDIA, 'readwrite');
+    tx.objectStore(STORE_MEDIA).put(record, id);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror    = () => reject(tx.error);
+    tx.onabort    = () => reject(tx.error || new Error('aborted'));
+  }));
+}
+function idbGetMedia(id){
+  return openDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_MEDIA, 'readonly');
+    const req = tx.objectStore(STORE_MEDIA).get(id);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror   = () => reject(req.error);
+  }));
+}
+function idbDeleteMedia(id){
+  return openDB().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_MEDIA, 'readwrite');
+    tx.objectStore(STORE_MEDIA).delete(id);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror    = () => reject(tx.error);
+  }));
+}
+
+let saveIndicatorEl = document.getElementById('saveIndicator');
+let saveIndicatorTimer = null;
+function showSavingHint(){
+  if(!saveIndicatorEl) return;
+  saveIndicatorEl.classList.add('show');
+  clearTimeout(saveIndicatorTimer);
+  saveIndicatorTimer = setTimeout(() => saveIndicatorEl.classList.remove('show'), 400);
+}
+
+/* 同步保存 state 到 localStorage */
+function saveStateNow(){
+  try{
+    const snapshot = {
+      v: 3,
+      user: state.user,
+      forms: state.forms.map(f => ({
+        id: f.id,
+        name: f.name,
+        createdAt: f.createdAt,
+        updatedAt: f.updatedAt,
+        answers: (() => {
+          const out = {};
+          for(const qid in f.answers){
+            const a = f.answers[qid];
+            out[qid] = {
+              boxes: Array.isArray(a.boxes) ? a.boxes.slice() : [''],
+              media: Array.isArray(a.media) ? a.media.map(m => {
+                const base = {
+                  id: m.id,
+                  kind: m.kind || 'image',
+                  type: m.type || 'data',
+                  name: m.name || ''
+                };
+                if(m.type === 'url') base.data = m.data;
+                return base;
+              }) : []
+            };
+          }
+          return out;
+        })()
+      })),
+      activeFormId: state.activeFormId,
+      updatedAt: Date.now()
+    };
+    const json = JSON.stringify(snapshot);
+    try{ localStorage.setItem(LS_KEY, json); }catch(e){}
+    try{ localStorage.setItem(LS_BACKUP, json); }catch(e){}
+    showSavingHint();
+  }catch(e){ console.warn('保存失败', e); }
+}
+function loadState(){
+  for(const key of [LS_KEY, LS_BACKUP]){
+    try{
+      const raw = localStorage.getItem(key);
+      if(!raw) continue;
+      const d = JSON.parse(raw);
+      if(d && typeof d === 'object' && Array.isArray(d.forms)) return d;
+    }catch(e){}
+  }
+  return null;
+}
+
+/* ============================================================
+   二、问卷定义
+   ============================================================ */
+const STYLE_TAGS = [
+  '清冷','温柔','可爱','甜美','元气','治愈','慵懒','优雅','神秘',
+  '国风','古风','新中式','日系','欧美','韩系','港风','复古','千禧',
+  'Y2K','蒸汽波','赛博朋克','未来感','废土','科幻','暗黑','哥特',
+  '极简','杂志风','ins风','高级灰','莫兰迪','多巴胺','芭比风',
+  '森系','田园','童话','梦幻','宫廷','华丽','文艺','清新','水彩',
+  '手绘','油画','像素','二次元','写实','抽象','硬朗','柔和','学院'
+];
+
+const QUESTIONS = [
+  { id:'q0', num:0, title:'人物图 / 视频',
+    desc:'从相册导入、粘贴链接、Ctrl+V 粘贴都行。视频不限制大小。',
+    boxes:false, addable:false, media:true, videos:true,
+    mediaLabel:'人物图 / 视频', imgMax:1600 },
+  { id:'q1', num:1, title:'小组件想要什么',
+    desc:'写下想要的小组件，会尽量做出来满足。',
+    boxes:true, addable:true, placeholder:'写在这里…' },
+  { id:'q2', num:2, title:'想要的色系',
+    desc:'可填具体色系或颜色代码，或填"老师自由发挥"会按人物图配色。',
+    boxes:true, addable:true, media:true,
+    placeholder:'例如：#C3BDE4 紫罗兰 / 老师自由发挥',
+    mediaLabel:'色卡图片（可选）', imgMax:1000 },
+  { id:'q3', num:3, title:'全局特殊要求',
+    desc:'如：不要换全局图标、怕卡、记不住图标等，rb不用填。',
+    boxes:true, addable:false, placeholder:'写在这里…' },
+  { id:'q4', num:4, title:'喜欢的小物',
+    desc:'如喜欢什么花、什么物品，觉得和人物很搭。',
+    boxes:true, addable:true, placeholder:'例如：铃兰、星月、蝴蝶结、旧书…' },
+  { id:'q5', num:5, title:'讨厌的东西',
+    desc:'雷点、雷的风格，如：不要可爱风、不要深色系等。',
+    boxes:true, addable:true, placeholder:'例如：不要可爱风、不要深色系…' },
+  { id:'q6', num:6, title:'喜欢的风格',
+    desc:'按自己审美填写，各种风格都可以；想不起来可以点下面的标签，再点一下取消。',
+    boxes:true, addable:true, tags:true, placeholder:'例如：清冷国风、赛博朋克…' },
+  { id:'q7', num:7, title:'char 人设信息',
+    desc:'定制需提供人设信息、NPC 等，不需要指令和扮演风格那种私密信息。支持从 .txt / .docx 导入。',
+    boxes:true, addable:true, docImport:true,
+    placeholder:'人设信息…（也可以从 .txt / .docx 文档导入）' },
+  { id:'q8', num:8, title:'拼字可用文案',
+    desc:'找符合人设的文案，越多越好，用于装饰或填空。',
+    boxes:true, addable:true, placeholder:'一条文案写一栏，或者用换行分隔…' }
+];
+
+/* ============================================================
+   三、状态
+   ============================================================ */
+const state = {
+  v: 3,
+  user: { name:'', avatar:'' },
+  forms: [],
+  activeFormId: null,
+  updatedAt: 0
+};
+
+let loginAvatarData = '';
+let toastTimer = null;
+let pendingPasteTarget = null;
+let pendingPasteTimer = null;
+let jszipPromise = null;
+
+const mediaURLs = {};
+
+function uid(){ return 'm' + Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4); }
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function defaultAnswers(){
+  const a = {};
+  QUESTIONS.forEach(q => { a[q.id] = { boxes:[''], media:[] }; });
+  return a;
+}
+function normKind(m){ return (m && m.kind === 'video') ? 'video' : 'image'; }
+function normType(data, type){
+  if(type === 'data' || type === 'url') return type;
+  return (typeof data === 'string' && data.indexOf('data:') === 0) ? 'data' : 'url';
+}
+
+async function normalizeAndMigrate(f){
+  const answers = {};
+  QUESTIONS.forEach(q => {
+    const src = f.answers && f.answers[q.id];
+    const d = { boxes:[''], media:[] };
+    if(src && typeof src === 'object'){
+      if(Array.isArray(src.boxes)){
+        const b = src.boxes.map(v => (typeof v === 'string' ? v : ''));
+        d.boxes = b.length ? b : [''];
+      }
+      const arr = Array.isArray(src.media) ? src.media : (Array.isArray(src.images) ? src.images : []);
+      d.media = arr
+        .filter(m => m && typeof m === 'object')
+        .map(m => ({
+          id: m.id || uid(),
+          kind: normKind(m),
+          type: normType(m.data, m.type),
+          name: m.name || '',
+          data: m.data,
+          _migrateData: (m.type !== 'url' && typeof m.data === 'string' && m.data.indexOf('data:') === 0) ? m.data : null
+        }));
+    }
+    answers[q.id] = d;
+  });
+  return answers;
+}
+
+async function migrateEmbeddedMedia(){
+  let migrated = 0;
+  for(const f of state.forms){
+    for(const q of QUESTIONS){
+      const d = f.answers[q.id];
+      if(!d || !Array.isArray(d.media)) continue;
+      for(let i = 0; i < d.media.length; i++){
+        const m = d.media[i];
+        if(m._migrateData){
+          try{
+            const blob = await dataURLToBlob(m._migrateData);
+            await idbPutMedia(m.id, { kind: m.kind, name: m.name, type:'data', blob });
+            delete m._migrateData;
+            delete m.data;
+            m.type = 'data';
+            migrated++;
+          }catch(e){ console.warn('迁移媒体失败', e); }
+        }
+      }
+    }
+  }
+  if(migrated) saveStateNow();
+  return migrated;
+}
+
+/* ============================================================
+   四、DOM 引用
+   ============================================================ */
+const loginView   = document.getElementById('loginView');
+const listView    = document.getElementById('listView');
+const editView    = document.getElementById('editView');
+
+const loginAvatarPicker = document.getElementById('loginAvatarPicker');
+const loginAvatarImg    = document.getElementById('loginAvatarImg');
+const loginAvatarPh     = document.getElementById('loginAvatarPh');
+const loginName   = document.getElementById('loginName');
+const loginBtn    = document.getElementById('loginBtn');
+
+const listAvatar  = document.getElementById('listAvatar');
+const listName    = document.getElementById('listName');
+const listMenuBtn = document.getElementById('listMenuBtn');
+const formListEl  = document.getElementById('formList');
+const listInfo    = document.getElementById('listInfo');
+const exportAllBtn= document.getElementById('exportAllBtn');
+const newFormBtn  = document.getElementById('newFormBtn');
+
+const backBtn     = document.getElementById('backBtn');
+const editNameEl  = document.getElementById('editName');
+const editMenuBtn = document.getElementById('editMenuBtn');
+const qList       = document.getElementById('qList');
+const progText    = document.getElementById('progText');
+const saveBackBtn = document.getElementById('saveBackBtn');
+const toastEl     = document.getElementById('toast');
+
+/* ============================================================
+   五、工具
+   ============================================================ */
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
+}
+function autoGrow(ta){
+  if(!ta) return;
+  ta.style.height = 'auto';
+  const h = ta.scrollHeight;
+  ta.style.height = (h > 0 ? h : 46) + 'px';
+}
+function growAll(){
+  requestAnimationFrame(() => {
+    qList.querySelectorAll('.box-input').forEach(autoGrow);
+  });
+}
+
+function compressImageToBlob(file, maxSize, quality){
+  return new Promise((resolve, reject) => {
+    if(!file || !/^image\//i.test(file.type || '')){ reject(new Error('不是图片文件')); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        try{
+          let w = img.naturalWidth || img.width;
+          let h = img.naturalHeight || img.height;
+          if(!w || !h){ reject(new Error('图片尺寸无效')); return; }
+          const scale = Math.min(1, maxSize / Math.max(w, h));
+          w = Math.max(1, Math.round(w * scale));
+          h = Math.max(1, Math.round(h * scale));
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          canvas.toBlob(blob => {
+            if(blob) resolve(blob);
+            else reject(new Error('压缩失败'));
+          }, 'image/jpeg', quality);
+        }catch(err){ reject(err); }
+      };
+      img.onerror = () => reject(new Error('图片加载失败'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('读取文件失败'));
+    reader.readAsDataURL(file);
+  });
+}
+function readAsArrayBuffer(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.onerror = () => reject(new Error('读取失败'));
+    r.readAsArrayBuffer(file);
+  });
+}
+function readAsDataURL(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.onerror = () => reject(new Error('读取失败'));
+    r.readAsDataURL(file);
+  });
+}
+function blobToDataURL(blob){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.onerror = () => reject(new Error('读取失败'));
+    r.readAsDataURL(blob);
+  });
+}
+function dataURLToBlob(dataURL){
+  return fetch(dataURL).then(r => r.blob());
+}
+function urlImageToBlob(url, maxSize){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    if(/^https?:/i.test(url)) img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try{
+        let w = img.naturalWidth || img.width;
+        let h = img.naturalHeight || img.height;
+        if(!w || !h){ reject(new Error('尺寸无效')); return; }
+        const scale = Math.min(1, maxSize / Math.max(w, h));
+        w = Math.max(1, Math.round(w * scale));
+        h = Math.max(1, Math.round(h * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob(blob => { blob ? resolve(blob) : reject(new Error('转换失败')); }, 'image/jpeg', 0.85);
+      }catch(err){ reject(err); }
+    };
+    img.onerror = () => reject(new Error('图片加载失败'));
+    img.src = url;
+  });
+}
+
+function showModal(opts){
+  opts = opts || {};
+  return new Promise(resolve => {
+    const withInput = opts.input !== false;
+    const mask = document.createElement('div');
+    mask.className = 'modal-mask';
+    mask.innerHTML =
+      '<div class="modal-box">' +
+        '<div class="modal-title">' + esc(opts.title || '') + '</div>' +
+        (opts.message ? '<div class="modal-msg">' + esc(opts.message) + '</div>' : '') +
+        (withInput
+          ? (opts.multiline
+              ? '<textarea class="modal-textarea" placeholder="' + esc(opts.placeholder || '') + '">' + esc(opts.value || '') + '</textarea>'
+              : '<input class="modal-input" type="text" value="' + esc(opts.value || '') +
+                '" placeholder="' + esc(opts.placeholder || '') + '" maxlength="600" autocomplete="off">')
+          : '') +
+        '<div class="modal-actions">' +
+          '<button type="button" data-r="cancel">取消</button>' +
+          '<button type="button" data-r="ok" class="' + (opts.danger ? 'danger' : 'primary') + '">' +
+            esc(opts.okText || '确定') + '</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(mask);
+    const input = mask.querySelector('input, textarea');
+    const close = v => { mask.remove(); resolve(v); };
+    mask.addEventListener('click', e => {
+      if(e.target === mask){ close(null); return; }
+      const b = e.target.closest('[data-r]');
+      if(!b) return;
+      close(b.dataset.r === 'ok' ? (withInput ? input.value : true) : null);
+    });
+    if(input){
+      input.focus();
+      if(input.select && input.tagName === 'INPUT') input.select();
+      input.addEventListener('keydown', e => {
+        if(e.key === 'Enter' && !opts.multiline){ e.preventDefault(); close(input.value); }
+        else if(e.key === 'Escape'){ e.preventDefault(); close(null); }
+      });
+    }
+  });
+}
+
+async function previewMedia(media){
+  let src;
+  if(media.type === 'url'){ src = media.data; }
+  else{
+    try{
+      const rec = await idbGetMedia(media.id);
+      if(!rec || !rec.blob){ toast('数据丢失'); return; }
+      src = URL.createObjectURL(rec.blob);
+    }catch(e){ toast('读取失败'); return; }
+  }
+  const v = document.createElement('div');
+  v.className = 'media-viewer';
+  if(media.kind === 'video'){
+    v.innerHTML = '<video src="' + esc(src) + '" controls autoplay playsinline></video>';
+  }else{
+    v.innerHTML = '<img src="' + esc(src) + '" alt="">';
+  }
+  v.addEventListener('click', e => {
+    if(e.target === v){
+      v.remove();
+      if(media.type !== 'url'){ try{ URL.revokeObjectURL(src); }catch(e){} }
+    }
+  });
+  document.body.appendChild(v);
+}
+
+function showPopupMenu(anchor, items){
+  const mask = document.createElement('div');
+  mask.className = 'popup-mask';
+  const panel = document.createElement('div');
+  panel.className = 'popup-panel';
+  items.forEach(it => {
+    if(it.sep){
+      const s = document.createElement('div');
+      s.className = 'popup-sep';
+      panel.appendChild(s);
+      return;
+    }
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'popup-item' + (it.danger ? ' danger' : '');
+    b.textContent = it.label;
+    b.addEventListener('click', () => {
+      mask.remove();
+      setTimeout(() => it.onClick && it.onClick(), 30);
+    });
+    panel.appendChild(b);
+  });
+  mask.appendChild(panel);
+  mask.addEventListener('click', e => { if(e.target === mask) mask.remove(); });
+  document.body.appendChild(mask);
+  const r = anchor.getBoundingClientRect();
+  const pw = panel.offsetWidth || 200;
+  const ph = panel.offsetHeight || 200;
+  let left = r.right - pw;
+  if(left < 10) left = 10;
+  if(left + pw > window.innerWidth - 10) left = window.innerWidth - pw - 10;
+  let top = r.bottom + 6;
+  if(top + ph > window.innerHeight - 10) top = Math.max(10, r.top - ph - 6);
+  panel.style.left = left + 'px';
+  panel.style.top = top + 'px';
+}
+
+function showQuestionPicker(){
+  return new Promise(resolve => {
+    const mQs = QUESTIONS.filter(q => q.media);
+    const mask = document.createElement('div');
+    mask.className = 'modal-mask';
+    let html = '<div class="modal-box"><div class="modal-title">加到哪一题？</div>' +
+      '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">';
+    mQs.forEach(q => {
+      html += '<button type="button" class="q-pick" data-qid="' + q.id + '"><b>' + q.num + '</b>' + esc(q.title) + '</button>';
+    });
+    html += '</div><div class="modal-actions"><button type="button" data-r="cancel">取消</button></div></div>';
+    mask.innerHTML = html;
+    document.body.appendChild(mask);
+    mask.querySelectorAll('.q-pick').forEach(b => {
+      b.addEventListener('click', () => {
+        mask.remove();
+        resolve(QUESTIONS.find(q => q.id === b.dataset.qid));
+      });
+    });
+    mask.addEventListener('click', e => {
+      if(e.target === mask){ mask.remove(); resolve(null); return; }
+      const c = e.target.closest('[data-r="cancel"]');
+      if(c){ mask.remove(); resolve(null); }
+    });
+  });
+}
+
+/* ============================================================
+   六、DOCX 解析
+   ============================================================ */
+async function unzipEntryNative(buffer, targetName){
+  const bytes = new Uint8Array(buffer);
+  const dv = new DataView(buffer);
+  let eocd = -1;
+  const minEocd = 22;
+  const maxBack = Math.min(bytes.length, 65558);
+  for(let i = bytes.length - minEocd; i >= bytes.length - maxBack; i--){
+    if(bytes[i] === 0x50 && bytes[i+1] === 0x4b && bytes[i+2] === 0x05 && bytes[i+3] === 0x06){
+      eocd = i; break;
+    }
+  }
+  if(eocd < 0) throw new Error('不是有效的 ZIP/DOCX 文件（找不到目录）');
+  const cdOffset = dv.getUint32(eocd + 16, true);
+  const cdCount  = dv.getUint16(eocd + 10, true);
+  let p = cdOffset, target = null;
+  for(let i = 0; i < cdCount; i++){
+    if(p + 46 > bytes.length) break;
+    if(dv.getUint32(p, true) !== 0x02014b50) break;
+    const method    = dv.getUint16(p + 10, true);
+    const compSize  = dv.getUint32(p + 20, true);
+    const nameLen   = dv.getUint16(p + 28, true);
+    const extraLen  = dv.getUint16(p + 30, true);
+    const commentLen= dv.getUint16(p + 32, true);
+    const localOff  = dv.getUint32(p + 42, true);
+    const nameBytes = bytes.slice(p + 46, p + 46 + nameLen);
+    const name = new TextDecoder('utf-8').decode(nameBytes);
+    if(name === targetName){ target = { method, compSize, localOff }; break; }
+    p += 46 + nameLen + extraLen + commentLen;
+  }
+  if(!target) throw new Error('DOCX 里找不到 ' + targetName + '（可能不是 Word 文件）');
+  const lh = target.localOff;
+  if(dv.getUint32(lh, true) !== 0x04034b50) throw new Error('ZIP 局部头损坏');
+  const lhNameLen  = dv.getUint16(lh + 26, true);
+  const lhExtraLen = dv.getUint16(lh + 28, true);
+  const dataStart  = lh + 30 + lhNameLen + lhExtraLen;
+  let compSize = target.compSize;
+  if(!compSize || dataStart + compSize > bytes.length) compSize = bytes.length - dataStart;
+  const compData = bytes.slice(dataStart, dataStart + compSize);
+  if(target.method === 0) return compData;
+  if(target.method === 8){
+    if(typeof DecompressionStream !== 'function') throw new Error('当前浏览器不支持原生解压');
+    const ds = new DecompressionStream('deflate-raw');
+    const stream = new Blob([compData]).stream().pipeThrough(ds);
+    const out = await new Response(stream).arrayBuffer();
+    return new Uint8Array(out);
+  }
+  throw new Error('不支持的压缩方式：' + target.method);
+}
+function decodeXmlBytes(bytes){
+  if(bytes.length >= 2){
+    if(bytes[0] === 0xFF && bytes[1] === 0xFE) return new TextDecoder('utf-16le').decode(bytes);
+    if(bytes[0] === 0xFE && bytes[1] === 0xFF) return new TextDecoder('utf-16be').decode(bytes);
+  }
+  let head = '';
+  try{ head = new TextDecoder('utf-8', { fatal: false }).decode(bytes.slice(0, Math.min(200, bytes.length))); }catch(e){}
+  const m = head.match(/<\?xml[^>]*encoding\s*=\s*["']([^"']+)["']/i);
+  let enc = 'utf-8';
+  if(m){
+    const e = m[1].toLowerCase().replace(/[\s_]/g, '-');
+    if(e === 'gbk' || e === 'gb2312' || e === 'gb18030' || e === 'gb-2312') enc = 'gb18030';
+    else if(e === 'big5' || e === 'big-5') enc = 'big5';
+    else if(e === 'utf-16' || e === 'utf-16le' || e === 'utf-16-le') enc = 'utf-16le';
+    else if(e === 'utf-16be' || e === 'utf-16-be') enc = 'utf-16be';
+  }
+  try{ return new TextDecoder(enc, { fatal: false }).decode(bytes); }
+  catch(e){ return new TextDecoder('utf-8', { fatal: false }).decode(bytes); }
+}
+function docxXmlToText(xml){
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, 'application/xml');
+  if(doc.getElementsByTagName('parsererror').length) throw new Error('docx 内部 XML 解析失败（可能文件损坏）');
+  const ns = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  const body = doc.getElementsByTagNameNS(ns, 'body')[0];
+  if(!body) throw new Error('docx 缺少 body 节点（可能文件损坏）');
+  const lines = [];
+  function walk(parent){
+    for(let i = 0; i < parent.childNodes.length; i++){
+      const node = parent.childNodes[i];
+      if(node.nodeType !== 1) continue;
+      const local = node.localName;
+      if(local === 'p'){
+        let line = '';
+        const ts = node.getElementsByTagNameNS(ns, 't');
+        for(let j = 0; j < ts.length; j++) line += ts[j].textContent;
+        lines.push(line);
+      } else if(local === 'tbl'){
+        const rows = node.getElementsByTagNameNS(ns, 'tr');
+        for(let r = 0; r < rows.length; r++){
+          const cells = rows[r].getElementsByTagNameNS(ns, 'tc');
+          const cellTexts = [];
+          for(let c = 0; c < cells.length; c++){
+            const ps = cells[c].getElementsByTagNameNS(ns, 'p');
+            let cellText = '';
+            for(let k = 0; k < ps.length; k++){
+              const ts = ps[k].getElementsByTagNameNS(ns, 't');
+              let t = '';
+              for(let j = 0; j < ts.length; j++) t += ts[j].textContent;
+              cellText += (cellText ? ' ' : '') + t;
+            }
+            cellTexts.push(cellText);
+          }
+          lines.push(cellTexts.join('\t'));
+        }
+      } else if(local === 'sdt' || local === 'sdtContent'){ walk(node); }
+    }
+  }
+  walk(body);
+  return lines.join('\n');
+}
+const JSZIP_CDNS = [
+  'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
+  'https://unpkg.com/jszip@3.10.1/dist/jszip.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'
+];
+function loadJSZip(){
+  if(window.JSZip) return Promise.resolve(window.JSZip);
+  if(jszipPromise) return jszipPromise;
+  jszipPromise = new Promise((resolve, reject) => {
+    let idx = 0;
+    function tryNext(){
+      if(idx >= JSZIP_CDNS.length){ jszipPromise = null; reject(new Error('备用解析库加载失败')); return; }
+      const s = document.createElement('script');
+      s.src = JSZIP_CDNS[idx++];
+      s.onload = () => { if(window.JSZip) resolve(window.JSZip); else tryNext(); };
+      s.onerror = () => { try{ s.remove(); }catch(e){} tryNext(); };
+      document.head.appendChild(s);
+    }
+    tryNext();
+  });
+  return jszipPromise;
+}
+async function parseDocx(file){
+  const buffer = await readAsArrayBuffer(file);
+  let xmlBytes = null, nativeErr = null;
+  if(typeof DecompressionStream === 'function'){
+    try{ xmlBytes = await unzipEntryNative(buffer, 'word/document.xml'); }
+    catch(e){ nativeErr = e; }
+  }else{
+    nativeErr = new Error('浏览器不支持原生解压');
+  }
+  if(!xmlBytes){
+    try{
+      const JSZipCtor = await loadJSZip();
+      const zip = new JSZipCtor(buffer);
+      const docXml = zip.file('word/document.xml');
+      if(!docXml){
+        if(zip.file('EncryptionInfo') || zip.file('EncryptedPackage')) throw new Error('这个文档有密码保护，请在 Word / WPS 里取消密码后重试');
+        throw new Error('这不是有效的 Word .docx 文件');
+      }
+      xmlBytes = await docXml.async('uint8array');
+    }catch(e){
+      if(nativeErr) throw new Error(nativeErr.message + '\n备用方案也失败：' + e.message);
+      throw e;
+    }
+  }
+  const xml = decodeXmlBytes(xmlBytes);
+  return docxXmlToText(xml);
+}
+function readTextFile(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.onerror = () => reject(new Error('读取失败'));
+    r.readAsText(file, 'utf-8');
+  });
+}
+function extractDocText(buffer){
+  const bytes = new Uint8Array(buffer);
+  const out = [];
+  let cur = '';
+  for(let i = 0; i + 1 < bytes.length; i += 2){
+    const code = bytes[i] | (bytes[i+1] << 8);
+    const isPrintable =
+      (code >= 0x0020 && code <= 0x007E) ||
+      (code >= 0x00A0 && code <= 0x2FFF) ||
+      (code >= 0x3000 && code <= 0x9FFF) ||
+      (code >= 0xF900 && code <= 0xFAFF) ||
+      (code >= 0xFF00 && code <= 0xFFEF);
+    if(isPrintable){ cur += String.fromCharCode(code); }
+    else{ if(cur.length >= 4) out.push(cur); cur = ''; }
+  }
+  if(cur.length >= 4) out.push(cur);
+  return out.join('\n');
+}
+async function detectFileKind(file){
+  try{
+    const buf = await file.slice(0, 8).arrayBuffer();
+    const b = new Uint8Array(buf);
+    if(b[0] === 0x50 && b[1] === 0x4B) return 'zip';
+    if(b[0] === 0xD0 && b[1] === 0xCF && b[2] === 0x11 && b[3] === 0xE0) return 'ole';
+    if(b[0] === 0x3C) return 'xml';
+    return 'text';
+  }catch(e){ return 'unknown'; }
+}
+
+/* ============================================================
+   七、头像裁剪器
+   ============================================================ */
+function openCropper(src, onDone){
+  let closed = false;
+  let cleanupFns = [];
+  function cleanup(){ cleanupFns.forEach(fn => { try{ fn(); }catch(e){} }); cleanupFns = []; }
+  const availW = Math.min(window.innerWidth - 60, 360);
+  const availH = window.innerHeight - 260;
+  const S = Math.max(180, Math.min(availW, availH, 360));
+  const overlay = document.createElement('div');
+  overlay.className = 'cropper-overlay';
+  const half = S / 2;
+  overlay.innerHTML =
+    '<div class="cropper-panel">' +
+      '<div class="cropper-title">调整头像</div>' +
+      '<div class="cropper-hint">拖动移动 · 双指或滑块缩放</div>' +
+      '<div class="cropper-stage" style="width:' + S + 'px;height:' + S + 'px;">' +
+        '<img class="cropper-img" alt="" draggable="false">' +
+        '<svg class="cropper-mask" viewBox="0 0 ' + S + ' ' + S + '" width="' + S + '" height="' + S + '">' +
+          '<defs><mask id="__cropMask">' +
+            '<rect width="' + S + '" height="' + S + '" fill="white"/>' +
+            '<circle cx="' + half + '" cy="' + half + '" r="' + half + '" fill="black"/>' +
+          '</mask></defs>' +
+          '<rect width="' + S + '" height="' + S + '" fill="rgba(20,15,32,0.72)" mask="url(#__cropMask)"/>' +
+          '<circle cx="' + half + '" cy="' + half + '" r="' + half + '" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-dasharray="6 5"/>' +
+        '</svg>' +
+      '</div>' +
+      '<div class="cropper-zoom">' +
+        '<span>缩小</span><input type="range" min="1" max="4" step="0.005" value="1"><span>放大</span>' +
+      '</div>' +
+      '<div class="cropper-actions">' +
+        '<button class="cropper-btn" data-r="cancel" type="button">取消</button>' +
+        '<button class="cropper-btn primary" data-r="ok" type="button">确定</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  const stage   = overlay.querySelector('.cropper-stage');
+  const imgEl   = overlay.querySelector('.cropper-img');
+  const zoomInp = overlay.querySelector('input[type=range]');
+  const img = new Image();
+  let baseScale = 1, scale = 1, offsetX = 0, offsetY = 0, dw = 0, dh = 0;
+  function computeSize(){ dw = img.naturalWidth * baseScale * scale; dh = img.naturalHeight * baseScale * scale; }
+  function clampOffset(){
+    const maxX = Math.max(0, (dw - S) / 2);
+    const maxY = Math.max(0, (dh - S) / 2);
+    offsetX = Math.max(-maxX, Math.min(maxX, offsetX));
+    offsetY = Math.max(-maxY, Math.min(maxY, offsetY));
+  }
+  function render(){
+    computeSize(); clampOffset();
+    imgEl.style.width  = dw + 'px';
+    imgEl.style.height = dh + 'px';
+    imgEl.style.left   = (half - dw / 2 + offsetX) + 'px';
+    imgEl.style.top    = (half - dh / 2 + offsetY) + 'px';
+  }
+  function done(val){
+    if(closed) return;
+    closed = true; cleanup(); overlay.remove(); onDone(val);
+  }
+  img.onload = () => {
+    const nw = img.naturalWidth, nh = img.naturalHeight;
+    if(!nw || !nh){ toast('图片尺寸无效'); done(null); return; }
+    baseScale = S / Math.min(nw, nh);
+    imgEl.src = src;
+    render();
+  };
+  img.onerror = () => { toast('图片加载失败'); done(null); };
+  img.src = src;
+  let dragging = false, startClientX = 0, startClientY = 0, startOffsetX = 0, startOffsetY = 0;
+  function pointOf(e){
+    if(e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if(e.changedTouches && e.changedTouches[0]) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  }
+  function pointerDown(e){
+    if(e.touches && e.touches.length > 1) return;
+    if(e.button != null && e.button !== 0) return;
+    dragging = true;
+    const p = pointOf(e);
+    startClientX = p.x; startClientY = p.y;
+    startOffsetX = offsetX; startOffsetY = offsetY;
+    if(e.cancelable) e.preventDefault();
+  }
+  function pointerMove(e){
+    if(!dragging) return;
+    const p = pointOf(e);
+    offsetX = startOffsetX + (p.x - startClientX);
+    offsetY = startOffsetY + (p.y - startClientY);
+    render();
+    if(e.cancelable) e.preventDefault();
+  }
+  function pointerUp(){ dragging = false; }
+  let pinch = null;
+  function onTouchStart(e){
+    if(e.touches.length >= 2){
+      dragging = false;
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      pinch = { dist: dist || 1, scale: scale };
+      if(e.cancelable) e.preventDefault();
+    }else pointerDown(e);
+  }
+  function onTouchMove(e){
+    if(e.touches.length >= 2 && pinch){
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      const ratio = dist / pinch.dist;
+      scale = Math.max(1, Math.min(4, pinch.scale * ratio));
+      zoomInp.value = scale;
+      render();
+      if(e.cancelable) e.preventDefault();
+      return;
+    }
+    pointerMove(e);
+  }
+  function onTouchEnd(e){
+    if(e.touches.length < 2) pinch = null;
+    if(e.touches.length === 0) pointerUp();
+  }
+  function onWheel(e){
+    e.preventDefault();
+    const k = e.deltaY > 0 ? 1.06 : (1 / 1.06);
+    scale = Math.max(1, Math.min(4, scale * k));
+    zoomInp.value = scale;
+    render();
+  }
+  function onZoomChange(){ scale = parseFloat(zoomInp.value) || 1; render(); }
+  stage.addEventListener('mousedown', pointerDown);
+  document.addEventListener('mousemove', pointerMove);
+  document.addEventListener('mouseup', pointerUp);
+  stage.addEventListener('touchstart', onTouchStart, { passive:false });
+  stage.addEventListener('touchmove', onTouchMove,  { passive:false });
+  stage.addEventListener('touchend', onTouchEnd);
+  stage.addEventListener('touchcancel', onTouchEnd);
+  stage.addEventListener('wheel', onWheel, { passive:false });
+  zoomInp.addEventListener('input', onZoomChange);
+  cleanupFns.push(() => {
+    document.removeEventListener('mousemove', pointerMove);
+    document.removeEventListener('mouseup', pointerUp);
+  });
+  overlay.addEventListener('click', e => {
+    const b = e.target.closest('[data-r]');
+    if(!b) return;
+    if(b.dataset.r === 'cancel'){ done(null); return; }
+    if(b.dataset.r === 'ok'){
+      if(!img.naturalWidth){ toast('图片还没准备好'); return; }
+      const OUT = 320;
+      computeSize(); clampOffset();
+      const k = OUT / S;
+      const dW = img.naturalWidth * baseScale * scale;
+      const dH = img.naturalHeight * baseScale * scale;
+      const left = half - dW / 2 + offsetX;
+      const top  = half - dH / 2 + offsetY;
+      let data = null;
+      try{
+        const canvas = document.createElement('canvas');
+        canvas.width = OUT; canvas.height = OUT;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, OUT, OUT);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(OUT/2, OUT/2, OUT/2, 0, Math.PI*2);
+        ctx.clip();
+        ctx.drawImage(img, left*k, top*k, dW*k, dH*k);
+        ctx.restore();
+        data = canvas.toDataURL('image/png');
+      }catch(err){ data = null; }
+      if(!data){
+        try{
+          const canvas = document.createElement('canvas');
+          canvas.width = OUT; canvas.height = OUT;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, OUT, OUT);
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(OUT/2, OUT/2, OUT/2, 0, Math.PI*2);
+          ctx.clip();
+          ctx.drawImage(img, left*k, top*k, dW*k, dH*k);
+          ctx.restore();
+          data = canvas.toDataURL('image/jpeg', 0.92);
+        }catch(err2){ toast('生成头像失败'); return; }
+      }
+      done(data);
+    }
+  });
+  function onKey(e){ if(e.key === 'Escape'){ e.preventDefault(); done(null); } }
+  document.addEventListener('keydown', onKey);
+  cleanupFns.push(() => document.removeEventListener('keydown', onKey));
+}
+
+/* ============================================================
+   八、登录
+   ============================================================ */
+function updateLoginAvatarUI(){
+  if(loginAvatarData){
+    loginAvatarImg.src = loginAvatarData;
+    loginAvatarImg.classList.remove('hide');
+    loginAvatarPh.classList.add('hide');
+    loginAvatarPicker.classList.add('has-img');
+  }else{
+    loginAvatarImg.removeAttribute('src');
+    loginAvatarImg.classList.add('hide');
+    loginAvatarPh.classList.remove('hide');
+    loginAvatarPicker.classList.remove('has-img');
+  }
+}
+function pickAvatarFile(cb){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = e => {
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    if(!/^image\//i.test(f.type || '')){ toast('请选择图片文件'); return; }
+    toast('处理中…');
+    compressImageToBlob(f, 1000, 0.9)
+      .then(blob => blobToDataURL(blob))
+      .then(dataURL => openCropper(dataURL, result => { if(result) cb(result); }))
+      .catch(err => toast('图片处理失败：' + err.message));
+  };
+  input.click();
+}
+loginAvatarPicker.addEventListener('click', () => {
+  pickAvatarFile(data => {
+    loginAvatarData = data;
+    updateLoginAvatarUI();
+    if(state.user.name){
+      state.user.avatar = data;
+      saveStateNow();
+    }
+    toast('头像已选好');
+  });
+});
+loginName.addEventListener('input', () => {
+  const n = loginName.value.trim();
+  if(n){ state.user.name = n; saveStateNow(); }
+});
+loginBtn.addEventListener('click', () => {
+  const name = (loginName.value || '').trim();
+  if(!name){ toast('请先填写名字'); loginName.focus(); return; }
+  state.user = { name: name, avatar: loginAvatarData || '' };
+  saveStateNow();
+  showList();
+});
+loginName.addEventListener('keydown', e => {
+  if(e.key === 'Enter'){ e.preventDefault(); loginBtn.click(); }
+});
+function showLogin(){
+  loginView.classList.remove('hide');
+  listView.classList.add('hide');
+  editView.classList.add('hide');
+  loginAvatarData = state.user.avatar || '';
+  loginName.value = state.user.name || '';
+  updateLoginAvatarUI();
+  setTimeout(() => { if(!loginName.value) loginName.focus(); }, 120);
+}
+function renderUserInfo(){
+  const u = state.user;
+  if(u.avatar) listAvatar.innerHTML = '<img src="' + esc(u.avatar) + '" alt="">';
+  else listAvatar.textContent = (u.name || '?').slice(0, 1);
+  listName.innerHTML = esc(u.name || '未命名') + '<small>填完记得导出 JSON 交给我</small>';
+}
+
+/* ============================================================
+   九、表单列表
+   ============================================================ */
+function getActiveForm(){ return state.forms.find(f => f.id === state.activeFormId) || null; }
+function showList(){
+  state.activeFormId = null;
+  loginView.classList.add('hide');
+  editView.classList.add('hide');
+  listView.classList.remove('hide');
+  renderUserInfo();
+  renderFormList();
+  window.scrollTo(0, 0);
+  saveStateNow();
+}
+function renderFormList(){
+  const forms = state.forms.slice().sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
+  listInfo.textContent = '共 ' + forms.length + ' 份';
+  formListEl.innerHTML = '';
+  if(!forms.length){
+    formListEl.innerHTML =
+      '<div class="empty-state">' +
+        '<div class="empty-icon">—</div>' +
+        '<div class="empty-t">还没有表单</div>' +
+        '<div class="empty-d">点下面的"新建表单"开始填写吧<br>填完可以继续建新的</div>' +
+      '</div>';
+    return;
+  }
+  forms.forEach(f => {
+    const card = document.createElement('div');
+    card.className = 'form-card';
+    let done = 0;
+    QUESTIONS.forEach(q => { if(isAnswered(f.answers, q.id)) done++; });
+    const total = QUESTIONS.length;
+    const t = new Date(f.updatedAt || f.createdAt || Date.now());
+    const dateStr = (t.getMonth()+1) + '月' + t.getDate() + '日';
+    const pct = ((done/total)*100).toFixed(1);
+    card.innerHTML =
+      '<div class="fc-main">' +
+        '<div class="fc-name">' + esc(f.name) + '</div>' +
+        '<div class="fc-meta">已完成 ' + done + '/' + total + ' · ' + dateStr + '</div>' +
+        '<div class="fc-bar"><div class="fc-fill" style="width:' + pct + '%"></div></div>' +
+      '</div>' +
+      '<button class="fc-more" type="button" aria-label="更多">' +
+        '<svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/></svg>' +
+      '</button>';
+    card.querySelector('.fc-main').addEventListener('click', () => openForm(f.id));
+    card.querySelector('.fc-more').addEventListener('click', e => {
+      e.stopPropagation();
+      showPopupMenu(e.currentTarget, [
+        { label:'继续填写', onClick: () => openForm(f.id) },
+        { label:'重命名', onClick: () => renameForm(f.id) },
+        { label:'导出这份 JSON', onClick: () => exportSingle(f.id) },
+        { sep:true },
+        { label:'删除', danger:true, onClick: () => deleteForm(f.id) }
+      ]);
+    });
+    formListEl.appendChild(card);
+  });
+}
+function openForm(fid){
+  const f = state.forms.find(x => x.id === fid);
+  if(!f) return;
+  state.activeFormId = fid;
+  loginView.classList.add('hide');
+  listView.classList.add('hide');
+  editView.classList.remove('hide');
+  editNameEl.textContent = f.name || '未命名';
+  renderQuestions();
+  updateProgress();
+  window.scrollTo(0, 0);
+  saveStateNow();
+  loadJSZip().catch(() => {});
+}
+async function createForm(){
+  const defaultName = '表单 ' + (state.forms.length + 1);
+  const name = await showModal({ title: '新建表单', placeholder: '给这份表单起个名字', value: defaultName });
+  if(name === null) return;
+  const n = (name || '').trim();
+  if(!n){ toast('名称不能为空'); return; }
+  const f = { id: uid(), name: n, createdAt: Date.now(), updatedAt: Date.now(), answers: defaultAnswers() };
+  state.forms.push(f);
+  saveStateNow();
+  openForm(f.id);
+}
+async function renameForm(fid){
+  const f = state.forms.find(x => x.id === fid);
+  if(!f) return;
+  const name = await showModal({ title: '重命名表单', value: f.name || '' });
+  if(name === null) return;
+  const n = (name || '').trim();
+  if(!n){ toast('名称不能为空'); return; }
+  f.name = n; f.updatedAt = Date.now();
+  saveStateNow();
+  if(state.activeFormId === fid) editNameEl.textContent = n;
+  renderFormList();
+  toast('已重命名');
+}
+async function deleteForm(fid){
+  const f = state.forms.find(x => x.id === fid);
+  if(!f) return;
+  const ok = await showModal({ title: '删除表单', message: '「' + f.name + '」将被永久删除。', input: false, okText: '删除', danger: true });
+  if(!ok) return;
+  try{
+    for(const q of QUESTIONS){
+      const d = f.answers[q.id];
+      if(d && Array.isArray(d.media)){
+        for(const m of d.media){
+          if(m.type === 'data') idbDeleteMedia(m.id).catch(() => {});
+          if(mediaURLs[m.id]){ try{ URL.revokeObjectURL(mediaURLs[m.id]); }catch(e){} delete mediaURLs[m.id]; }
+        }
+      }
+    }
+  }catch(e){}
+  state.forms = state.forms.filter(x => x.id !== fid);
+  saveStateNow();
+  if(state.activeFormId === fid) showList();
+  else renderFormList();
+  toast('已删除');
+}
+
+/* ============================================================
+   十、编辑页顶栏
+   ============================================================ */
+editNameEl.addEventListener('click', async () => {
+  const f = getActiveForm();
+  if(!f) return;
+  const name = await showModal({ title: '重命名表单', value: f.name || '' });
+  if(name === null) return;
+  const n = (name || '').trim();
+  if(!n){ toast('名称不能为空'); return; }
+  f.name = n; f.updatedAt = Date.now();
+  editNameEl.textContent = n;
+  saveStateNow();
+});
+editMenuBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  const f = getActiveForm();
+  if(!f) return;
+  showPopupMenu(editMenuBtn, [
+    { label:'重命名表单', onClick: () => { editNameEl.click(); } },
+    { label:'导出这份 JSON', onClick: () => exportSingle(f.id) },
+    { sep:true },
+    { label:'清空这份内容', danger:true, onClick: async () => {
+      const ok = await showModal({
+        title:'清空这份内容', message:'这份表单里的所有内容、媒体都会被清空。',
+        input:false, okText:'清空', danger:true
+      });
+      if(!ok) return;
+      for(const q of QUESTIONS){
+        const d = f.answers[q.id];
+        if(d && Array.isArray(d.media)){
+          for(const m of d.media){
+            if(m.type === 'data') idbDeleteMedia(m.id).catch(() => {});
+            if(mediaURLs[m.id]){ try{ URL.revokeObjectURL(mediaURLs[m.id]); }catch(e){} delete mediaURLs[m.id]; }
+          }
+        }
+      }
+      f.answers = defaultAnswers();
+      f.updatedAt = Date.now();
+      saveStateNow();
+      renderQuestions();
+      updateProgress();
+      toast('已清空');
+    }},
+    { label:'删除这份表单', danger:true, onClick: () => deleteForm(f.id) }
+  ]);
+});
+backBtn.addEventListener('click', () => { saveStateNow(); showList(); });
+saveBackBtn.addEventListener('click', () => {
+  saveStateNow();
+  toast('已保存');
+  setTimeout(showList, 260);
+});
+
+/* ============================================================
+   十一、列表页菜单
+   ============================================================ */
+listMenuBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  showPopupMenu(listMenuBtn, [
+    { label:'导出全部 JSON', onClick: exportAll },
+    { sep:true },
+    { label:'清空并退出登录', danger:true, onClick: logout }
+  ]);
+});
+
+/* 清空并退出：删除所有 IDB 媒体 + 清 localStorage + 重置状态 */
+async function logout(){
+  const ok = await showModal({
+    title: '清空并退出登录',
+    message: '退出后将【清空本浏览器里的所有内容】——\n包括所有表单、图片、视频、头像、名字。\n\n此操作不可恢复，确定要继续吗？',
+    input: false, okText: '清空并退出', danger: true
+  });
+  if(!ok) return;
+
+  // 1. 删掉所有 IDB 媒体
+  try{
+    for(const f of state.forms){
+      for(const q of QUESTIONS){
+        const d = f.answers[q.id];
+        if(d && Array.isArray(d.media)){
+          for(const m of d.media){
+            if(m.type === 'data'){
+              try{ await idbDeleteMedia(m.id); }catch(e){}
+            }
+          }
+        }
+      }
+    }
+  }catch(e){ console.warn('删媒体失败', e); }
+
+  // 2. 清空 localStorage
+  try{ localStorage.removeItem(LS_KEY); }catch(e){}
+  try{ localStorage.removeItem(LS_BACKUP); }catch(e){}
+
+  // 3. 释放内存中的 objectURL
+  for(const k in mediaURLs){
+    try{ URL.revokeObjectURL(mediaURLs[k]); }catch(e){}
+    delete mediaURLs[k];
+  }
+
+  // 4. 重置内存状态
+  state.user = { name:'', avatar:'' };
+  state.forms = [];
+  state.activeFormId = null;
+  state.updatedAt = Date.now();
+
+  // 5. 回登录页
+  loginAvatarData = '';
+  showLogin();
+  toast('已清空并退出');
+}
+
+/* ============================================================
+   十二、问卷渲染
+   ============================================================ */
+function createBoxEl(q, value){
+  const row = document.createElement('div');
+  row.className = 'box-row';
+  const ta = document.createElement('textarea');
+  ta.className = 'box-input';
+  ta.rows = 1;
+  ta.value = value || '';
+  ta.placeholder = q.placeholder || '写在这里…';
+  ta.spellcheck = false;
+  ta.addEventListener('input', () => {
+    autoGrow(ta);
+    syncBoxesFromDOM(q.id);
+    saveStateNow();
+    updateProgress();
+    if(q.tags) syncTagStates(q.id);
+  });
+  const del = document.createElement('button');
+  del.type = 'button';
+  del.className = 'box-del';
+  del.textContent = '×';
+  del.title = '删除这一栏';
+  del.addEventListener('click', () => {
+    const list = row.parentNode;
+    const rows = list.querySelectorAll('.box-row');
+    if(rows.length <= 1){ ta.value = ''; autoGrow(ta); }
+    else row.remove();
+    syncBoxesFromDOM(q.id);
+    saveStateNow();
+    updateProgress();
+    if(q.tags) syncTagStates(q.id);
+  });
+  row.appendChild(ta);
+  row.appendChild(del);
+  return row;
+}
+function syncBoxesFromDOM(qid){
+  const f = getActiveForm();
+  if(!f) return;
+  const list = qList.querySelector('[data-boxes="' + qid + '"]');
+  if(!list) return;
+  const vals = [];
+  list.querySelectorAll('.box-input').forEach(ta => vals.push(ta.value));
+  f.answers[qid].boxes = vals.length ? vals : [''];
+  f.updatedAt = Date.now();
+}
+function rebuildBoxes(qid){
+  const list = qList.querySelector('[data-boxes="' + qid + '"]');
+  if(!list) return;
+  const q = QUESTIONS.find(x => x.id === qid);
+  const f = getActiveForm();
+  if(!q || !f) return;
+  list.innerHTML = '';
+  f.answers[qid].boxes.forEach(v => list.appendChild(createBoxEl(q, v)));
+  list.querySelectorAll('.box-input').forEach(autoGrow);
+}
+function buildTagArea(q){
+  const wrap = document.createElement('div');
+  wrap.className = 'tag-area';
+  const head = document.createElement('div');
+  head.className = 'tag-area-head';
+  head.textContent = '没头绪？点一下加进去，再点一下取消';
+  wrap.appendChild(head);
+  const tagWrap = document.createElement('div');
+  tagWrap.className = 'tag-wrap';
+  tagWrap.dataset.tags = q.id;
+  STYLE_TAGS.forEach(t => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tag';
+    b.dataset.tag = t;
+    b.textContent = t;
+    b.addEventListener('click', () => toggleTag(q.id, t));
+    tagWrap.appendChild(b);
+  });
+  wrap.appendChild(tagWrap);
+  return wrap;
+}
+function toggleTag(qid, tag){
+  const f = getActiveForm();
+  if(!f) return;
+  const boxes = f.answers[qid].boxes;
+  let foundIdx = -1;
+  for(let i = 0; i < boxes.length; i++){
+    const parts = (boxes[i] || '').split('\n').map(s => s.trim());
+    if(parts.indexOf(tag) !== -1){ foundIdx = i; break; }
+  }
+  if(foundIdx >= 0){
+    const lines = (boxes[foundIdx] || '').split('\n');
+    const kept = lines.filter(s => s.trim() !== tag);
+    boxes[foundIdx] = kept.join('\n').replace(/^\n+/, '').replace(/\n+$/, '').replace(/\n{3,}/g, '\n\n');
+  }else{
+    let idx = -1;
+    for(let i = boxes.length - 1; i >= 0; i--){
+      if((boxes[i] || '').trim()){ idx = i; break; }
+    }
+    if(idx < 0) idx = 0;
+    const cur = boxes[idx] || '';
+    boxes[idx] = cur.replace(/\s+$/, '') ? (cur.replace(/\s+$/, '') + '\n' + tag) : tag;
+  }
+  f.updatedAt = Date.now();
+  rebuildBoxes(qid);
+  syncTagStates(qid);
+  saveStateNow();
+  updateProgress();
+}
+function syncTagStates(qid){
+  const wrap = qList.querySelector('[data-tags="' + qid + '"]');
+  if(!wrap) return;
+  const f = getActiveForm();
+  if(!f) return;
+  const all = (f.answers[qid].boxes || []).join('\n');
+  wrap.querySelectorAll('.tag').forEach(t => {
+    const tag = t.dataset.tag;
+    t.classList.toggle('on', all.indexOf(tag) !== -1);
+  });
+}
+
+/* ------------ 媒体区 ------------ */
+function buildMediaArea(q){
+  const wrap = document.createElement('div');
+  wrap.className = 'media-area';
+  const head = document.createElement('div');
+  head.className = 'media-head';
+  head.textContent = q.mediaLabel || '图片（可多张）';
+  wrap.appendChild(head);
+  const grid = document.createElement('div');
+  grid.className = 'media-grid';
+  grid.dataset.media = q.id;
+  wrap.appendChild(grid);
+  const actions = document.createElement('div');
+  actions.className = 'media-actions';
+
+  const bImg = document.createElement('button');
+  bImg.type = 'button';
+  bImg.className = 'media-btn';
+  bImg.textContent = '相册导入';
+  bImg.onclick = () => pickImages(q.id, q);
+  actions.appendChild(bImg);
+
+  if(q.videos){
+    const bVid = document.createElement('button');
+    bVid.type = 'button';
+    bVid.className = 'media-btn';
+    bVid.textContent = '视频导入';
+    bVid.onclick = () => pickVideos(q.id, q);
+    actions.appendChild(bVid);
+  }
+
+  const bUrl = document.createElement('button');
+  bUrl.type = 'button';
+  bUrl.className = 'media-btn';
+  bUrl.textContent = '链接导入';
+  bUrl.onclick = () => importFromUrl(q.id, q);
+  actions.appendChild(bUrl);
+
+  const bPaste = document.createElement('button');
+  bPaste.type = 'button';
+  bPaste.className = 'media-btn';
+  bPaste.textContent = '粘贴剪贴板';
+  bPaste.onclick = () => importFromClipboard(q.id, q);
+  actions.appendChild(bPaste);
+
+  wrap.appendChild(actions);
+  const hint = document.createElement('div');
+  hint.className = 'media-hint';
+  hint.innerHTML = '也可以在编辑页直接按 <b>Ctrl+V</b> 粘贴图片或视频';
+  wrap.appendChild(hint);
+
+  renderMediaGrid(q.id);
+  return wrap;
+}
+
+function renderMediaGrid(qid){
+  const grid = qList.querySelector('[data-media="' + qid + '"]');
+  if(!grid) return;
+  grid.innerHTML = '';
+  const f = getActiveForm();
+  if(!f) return;
+  const list = f.answers[qid].media || [];
+
+  list.forEach((media, i) => {
+    const item = document.createElement('div');
+    item.className = 'media-item';
+    item.dataset.mediaId = media.id;
+
+    const ph = document.createElement('div');
+    ph.className = 'media-loading';
+    ph.textContent = media.kind === 'video' ? '视频加载中…' : '图片加载中…';
+    item.appendChild(ph);
+
+    loadMediaInto(item, media);
+
+    if(media.type === 'url'){
+      const tag = document.createElement('div');
+      tag.className = 'media-tag';
+      tag.textContent = '链接';
+      item.appendChild(tag);
+    }
+
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'media-del';
+    del.textContent = '×';
+    del.title = '删除';
+    del.addEventListener('click', e => {
+      e.stopPropagation();
+      f.answers[qid].media.splice(i, 1);
+      f.updatedAt = Date.now();
+      if(media.type === 'data') idbDeleteMedia(media.id).catch(() => {});
+      if(mediaURLs[media.id]){ try{ URL.revokeObjectURL(mediaURLs[media.id]); }catch(e){} delete mediaURLs[media.id]; }
+      renderMediaGrid(qid);
+      saveStateNow();
+      updateProgress();
+    });
+    item.appendChild(del);
+
+    item.addEventListener('click', () => previewMedia(media));
+    grid.appendChild(item);
+  });
+}
+
+async function loadMediaInto(item, media){
+  try{
+    let src;
+    if(media.type === 'url'){ src = media.data; }
+    else{
+      const rec = await idbGetMedia(media.id);
+      if(!rec || !rec.blob){
+        const ph = item.querySelector('.media-loading');
+        if(ph) ph.textContent = '数据丢失';
+        return;
+      }
+      if(!mediaURLs[media.id]){
+        mediaURLs[media.id] = URL.createObjectURL(rec.blob);
+      }
+      src = mediaURLs[media.id];
+    }
+    const ph = item.querySelector('.media-loading');
+    if(ph) ph.remove();
+    if(media.kind === 'video'){
+      const t = document.createElement('div');
+      t.className = 'media-video-thumb';
+      t.innerHTML = '<span class="icon">VIDEO</span><span class="name">' + esc(media.name || '视频') + '</span>';
+      item.insertBefore(t, item.firstChild);
+    }else{
+      const im = document.createElement('img');
+      im.src = src;
+      im.alt = '';
+      im.onerror = () => {
+        im.remove();
+        const err = document.createElement('div');
+        err.className = 'media-loading';
+        err.textContent = '加载失败';
+        item.insertBefore(err, item.firstChild);
+      };
+      item.insertBefore(im, item.firstChild);
+    }
+  }catch(e){
+    console.warn('加载媒体失败', e);
+    const ph = item.querySelector('.media-loading');
+    if(ph) ph.textContent = '加载失败';
+  }
+}
+
+async function pickImages(qid, q){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.multiple = true;
+  input.onchange = async e => {
+    const files = Array.from(e.target.files || []);
+    if(!files.length) return;
+    const f = getActiveForm();
+    if(!f) return;
+    toast('正在处理 ' + files.length + ' 张图片…');
+    const maxSize = (q && q.imgMax) || 1600;
+    let ok = 0;
+    for(const file of files){
+      try{
+        const blob = await compressImageToBlob(file, maxSize, 0.85);
+        const id = uid();
+        await idbPutMedia(id, { kind:'image', name: file.name || '', type:'data', blob });
+        f.answers[qid].media.push({ id, kind:'image', type:'data', name: file.name || '' });
+        ok++;
+      }catch(err){ console.warn('图片处理失败', err); }
+    }
+    f.updatedAt = Date.now();
+    renderMediaGrid(qid);
+    saveStateNow();
+    updateProgress();
+    toast(ok ? ('已添加 ' + ok + ' 张图片') : '没有可用的图片');
+  };
+  input.click();
+}
+
+async function pickVideos(qid, q){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'video/*';
+  input.multiple = true;
+  input.onchange = async e => {
+    const files = Array.from(e.target.files || []);
+    if(!files.length) return;
+    const f = getActiveForm();
+    if(!f) return;
+    let ok = 0;
+    for(const file of files){
+      try{
+        toast('正在读取 ' + (file.name || '视频') + '（' + (file.size/1024/1024).toFixed(1) + 'MB）…');
+        const id = uid();
+        await idbPutMedia(id, { kind:'video', name: file.name || 'video', type:'data', blob: file });
+        f.answers[qid].media.push({ id, kind:'video', type:'data', name: file.name || 'video' });
+        ok++;
+      }catch(err){
+        toast('读取失败：' + err.message);
+      }
+    }
+    f.updatedAt = Date.now();
+    renderMediaGrid(qid);
+    saveStateNow();
+    updateProgress();
+    if(ok) toast('已添加 ' + ok + ' 个视频');
+  };
+  input.click();
+}
+
+async function importFromUrl(qid, q){
+  const url = await showModal({
+    title: '输入媒体链接',
+    message: '支持 http(s) 图片或视频链接。\n能转 base64 就转，跨域的会直接存链接。',
+    placeholder: 'https://example.com/a.jpg 或 a.mp4',
+    value: ''
+  });
+  if(url === null) return;
+  const u = (url || '').trim();
+  if(!u){ toast('链接不能为空'); return; }
+  if(!/^(https?:\/\/|data:image\/|data:video\/)/i.test(u)){
+    toast('请输入 http(s) 或 data: 开头的链接');
+    return;
+  }
+  const f = getActiveForm();
+  if(!f) return;
+  const isVideo = /\.(mp4|webm|mov|m4v|ogv|avi|mkv|3gp)(\?|#|$)/i.test(u) || /^data:video\//i.test(u);
+  if(isVideo){
+    const id = uid();
+    f.answers[qid].media.push({ id, kind:'video', type:'url', name:'', data: u });
+    f.updatedAt = Date.now();
+    renderMediaGrid(qid);
+    saveStateNow();
+    updateProgress();
+    toast('已添加视频链接');
+    return;
+  }
+  toast('正在加载图片…');
+  const maxSize = (q && q.imgMax) || 1600;
+  try{
+    const blob = await urlImageToBlob(u, maxSize);
+    const id = uid();
+    await idbPutMedia(id, { kind:'image', name:'', type:'data', blob });
+    f.answers[qid].media.push({ id, kind:'image', type:'data', name:'' });
+    toast('已添加图片');
+  }catch(err){
+    const id = uid();
+    f.answers[qid].media.push({ id, kind:'image', type:'url', name:'', data: u });
+    toast('已添加图片链接（跨域无法转存）');
+  }
+  f.updatedAt = Date.now();
+  renderMediaGrid(qid);
+  saveStateNow();
+  updateProgress();
+}
+
+function importFromClipboard(qid, q){
+  pendingPasteTarget = qid;
+  clearTimeout(pendingPasteTimer);
+  pendingPasteTimer = setTimeout(() => {
+    if(pendingPasteTarget === qid){
+      pendingPasteTarget = null;
+      toast('粘贴已超时，请重新点击');
+    }
+  }, 10000);
+  toast('请按 Ctrl+V / 长按粘贴（10 秒内）');
+}
+
+function importDocument(qid){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.txt,.docx,.doc,.md,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  input.onchange = async e => {
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    const f = getActiveForm();
+    if(!f) return;
+    const lname = (file.name || '').toLowerCase();
+    try{
+      let text = '';
+      if(lname.endsWith('.txt') || lname.endsWith('.md')){
+        text = await readTextFile(file);
+      }
+      else if(lname.endsWith('.docx') || lname.endsWith('.doc')){
+        toast('正在解析文档…');
+        if(lname.endsWith('.doc')){
+          try{ text = await parseDocx(file); }
+          catch(e){
+            toast('检测到旧版 .doc，尝试提取文字…');
+            const buffer = await readAsArrayBuffer(file);
+            text = extractDocText(buffer);
+            if(!text || text.length < 10){
+              throw new Error('这是旧版 .doc 二进制格式，浏览器很难精确解析。\n请用 Word / WPS 打开后「另存为 .docx」再上传。');
+            }
+            text = text + '\n\n（注：这是旧版 .doc 的粗略提取结果，可能存在格式错乱。建议另存为 .docx 后重新导入。）';
+          }
+        }else{
+          text = await parseDocx(file);
+        }
+      }
+      else{
+        const kind = await detectFileKind(file);
+        if(kind === 'zip'){ text = await parseDocx(file); }
+        else{
+          const t = await readTextFile(file);
+          if(t && t.length > 0 && !/[\x00-\x08\x0E-\x1F]/.test(t.substring(0, 100))){ text = t; }
+          else{ throw new Error('不支持的文件格式：' + (file.name || '') + '\n请上传 .txt 或 .docx 文件'); }
+        }
+      }
+      text = (text || '').replace(/\r\n/g, '\n').trim();
+      if(!text){ toast('文档是空的'); return; }
+      const boxes = f.answers[qid].boxes;
+      const hasContent = boxes.some(b => (b || '').trim());
+      if(!hasContent) boxes[0] = text;
+      else boxes.push(text);
+      f.updatedAt = Date.now();
+      rebuildBoxes(qid);
+      saveStateNow();
+      updateProgress();
+      toast('已导入文档内容（' + text.length + ' 字）');
+    }catch(err){
+      console.error('文档导入失败', err);
+      await showModal({ title: '导入失败', message: (err && err.message) || '未知错误', input: false, okText: '知道了' });
+    }
+  };
+  input.click();
+}
+async function importFromClipboardText(qid){
+  const f = getActiveForm();
+  if(!f) return;
+  let text = '';
+  try{
+    if(navigator.clipboard && navigator.clipboard.readText){
+      text = await navigator.clipboard.readText();
+    }
+  }catch(e){}
+  const result = await showModal({
+    title: '粘贴文档内容',
+    message: '在下面粘贴文本（Ctrl+V / 长按粘贴），确定后会填进框里。',
+    multiline: true, placeholder: '在这里粘贴…', value: text || '', okText: '填入'
+  });
+  if(result === null) return;
+  const t = (result || '').replace(/\r\n/g, '\n').trim();
+  if(!t){ toast('内容是空的'); return; }
+  const boxes = f.answers[qid].boxes;
+  const hasContent = boxes.some(b => (b || '').trim());
+  if(!hasContent) boxes[0] = t;
+  else boxes.push(t);
+  f.updatedAt = Date.now();
+  rebuildBoxes(qid);
+  saveStateNow();
+  updateProgress();
+  toast('已填入（' + t.length + ' 字）');
+}
+
+async function addFileToQuestion(q, file){
+  const f = getActiveForm();
+  if(!f) return;
+  toast('正在处理…');
+  try{
+    const isVideo = /^video\//i.test(file.type || '');
+    const id = uid();
+    if(isVideo){
+      await idbPutMedia(id, { kind:'video', name: file.name || 'video', type:'data', blob: file });
+      f.answers[q.id].media.push({ id, kind:'video', type:'data', name: file.name || 'video' });
+    }else{
+      const maxSize = (q && q.imgMax) || 1600;
+      const blob = await compressImageToBlob(file, maxSize, 0.85);
+      await idbPutMedia(id, { kind:'image', name: file.name || 'paste', type:'data', blob });
+      f.answers[q.id].media.push({ id, kind:'image', type:'data', name: file.name || 'paste' });
+    }
+    f.updatedAt = Date.now();
+    renderMediaGrid(q.id);
+    saveStateNow();
+    updateProgress();
+    toast('已添加');
+  }catch(err){
+    toast('添加失败：' + err.message);
+  }
+}
+async function addUrlToQuestion(q, url){
+  const f = getActiveForm();
+  if(!f) return;
+  const isVideo = /\.(mp4|webm|mov|m4v|ogv|avi|mkv|3gp)(\?|#|$)/i.test(url) || /^data:video\//i.test(url);
+  if(isVideo){
+    const id = uid();
+    f.answers[q.id].media.push({ id, kind:'video', type:'url', name:'', data: url });
+    f.updatedAt = Date.now();
+    renderMediaGrid(q.id);
+    saveStateNow();
+    updateProgress();
+    toast('已添加视频链接');
+    return;
+  }
+  toast('正在加载图片…');
+  const maxSize = (q && q.imgMax) || 1600;
+  try{
+    const blob = await urlImageToBlob(url, maxSize);
+    const id = uid();
+    await idbPutMedia(id, { kind:'image', name:'', type:'data', blob });
+    f.answers[q.id].media.push({ id, kind:'image', type:'data', name:'' });
+    toast('已添加图片');
+  }catch(err){
+    const id = uid();
+    f.answers[q.id].media.push({ id, kind:'image', type:'url', name:'', data: url });
+    toast('已添加图片链接');
+  }
+  f.updatedAt = Date.now();
+  renderMediaGrid(q.id);
+  saveStateNow();
+  updateProgress();
+}
+
+document.addEventListener('paste', async e => {
+  const ae = document.activeElement;
+  if(ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return;
+  if(document.querySelector('.cropper-overlay')) return;
+  if(document.querySelector('.modal-mask')) return;
+  const f = getActiveForm();
+  if(!f) return;
+  const cd = e.clipboardData;
+  if(!cd) return;
+  let file = null;
+  if(cd.items){
+    for(let i = 0; i < cd.items.length; i++){
+      const it = cd.items[i];
+      if(it.type && (it.type.indexOf('image/') === 0 || it.type.indexOf('video/') === 0)){
+        file = it.getAsFile();
+        if(file) break;
+      }
+    }
+  }
+  if(file){
+    e.preventDefault();
+    let q = null;
+    if(pendingPasteTarget){
+      q = QUESTIONS.find(x => x.id === pendingPasteTarget);
+      pendingPasteTarget = null;
+      clearTimeout(pendingPasteTimer);
+    }else{
+      const mQs = QUESTIONS.filter(x => x.media);
+      if(mQs.length === 1) q = mQs[0];
+      else q = await showQuestionPicker();
+    }
+    if(q) await addFileToQuestion(q, file);
+    return;
+  }
+  const text = (cd.getData && cd.getData('text/plain')) || '';
+  const t = text.trim();
+  const isImgUrl = /^(https?:\/\/|data:image\/)/i.test(t) && /\.(png|jpe?g|gif|webp|bmp|svg|avif)|[?&](format|type)=image|data:image\//i.test(t);
+  const isVidUrl = /^(https?:\/\/|data:video\/)/i.test(t) && /\.(mp4|webm|mov|m4v|ogv|avi|mkv|3gp)|[?&](format|type)=video|data:video\//i.test(t);
+  if(t && (isImgUrl || isVidUrl)){
+    e.preventDefault();
+    let q = null;
+    if(pendingPasteTarget){
+      q = QUESTIONS.find(x => x.id === pendingPasteTarget);
+      pendingPasteTarget = null;
+      clearTimeout(pendingPasteTimer);
+    }else{
+      const mQs = QUESTIONS.filter(x => x.media);
+      if(mQs.length === 1) q = mQs[0];
+      else q = await showQuestionPicker();
+    }
+    if(q) await addUrlToQuestion(q, t);
+  }
+});
+
+function renderQuestions(){
+  qList.innerHTML = '';
+  const f = getActiveForm();
+  if(!f) return;
+  QUESTIONS.forEach(q => {
+    const data = f.answers[q.id] || { boxes:[''], media:[] };
+    const card = document.createElement('section');
+    card.className = 'q-card';
+    card.dataset.qid = q.id;
+    const head = document.createElement('div');
+    head.className = 'q-head';
+    head.innerHTML =
+      '<div class="q-num">' + q.num + '</div>' +
+      '<div class="q-headtext">' +
+        '<h3 class="q-title">' + esc(q.title) + '</h3>' +
+        (q.desc ? '<p class="q-desc">' + esc(q.desc) + '</p>' : '') +
+      '</div>';
+    card.appendChild(head);
+    const body = document.createElement('div');
+    body.className = 'q-body';
+    if(q.boxes){
+      const boxWrap = document.createElement('div');
+      boxWrap.className = 'box-list';
+      boxWrap.dataset.boxes = q.id;
+      (data.boxes.length ? data.boxes : ['']).forEach(v => {
+        boxWrap.appendChild(createBoxEl(q, v));
+      });
+      body.appendChild(boxWrap);
+      if(q.addable){
+        const addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.className = 'add-box-btn';
+        addBtn.textContent = '添加一栏';
+        addBtn.addEventListener('click', () => {
+          const list = qList.querySelector('[data-boxes="' + q.id + '"]');
+          const el = createBoxEl(q, '');
+          list.appendChild(el);
+          const ta = el.querySelector('.box-input');
+          ta.focus();
+          f.answers[q.id].boxes.push('');
+          f.updatedAt = Date.now();
+          saveStateNow();
+          updateProgress();
+        });
+        body.appendChild(addBtn);
+      }
+      if(q.docImport){
+        const docBtn = document.createElement('button');
+        docBtn.type = 'button';
+        docBtn.className = 'doc-btn';
+        docBtn.textContent = '从文档导入（.txt / .docx）';
+        docBtn.addEventListener('click', () => importDocument(q.id));
+        body.appendChild(docBtn);
+
+        const pasteBtn = document.createElement('button');
+        pasteBtn.type = 'button';
+        pasteBtn.className = 'doc-btn';
+        pasteBtn.style.marginTop = '6px';
+        pasteBtn.textContent = '从剪贴板粘贴文字';
+        pasteBtn.addEventListener('click', () => importFromClipboardText(q.id));
+        body.appendChild(pasteBtn);
+      }
+    }
+    if(q.tags) body.appendChild(buildTagArea(q));
+    if(q.media) body.appendChild(buildMediaArea(q));
+    card.appendChild(body);
+    qList.appendChild(card);
+  });
+  QUESTIONS.filter(q => q.tags).forEach(q => syncTagStates(q.id));
+  growAll();
+}
+
+/* ============================================================
+   十三、进度
+   ============================================================ */
+function isAnswered(answers, qid){
+  const d = answers[qid];
+  if(!d) return false;
+  if(d.media && d.media.length) return true;
+  return (d.boxes || []).some(b => b && b.trim());
+}
+function updateProgress(){
+  const f = getActiveForm();
+  if(!f) return;
+  let done = 0;
+  QUESTIONS.forEach(q => { if(isAnswered(f.answers, q.id)) done++; });
+  progText.innerHTML = '已完成 <b>' + done + '</b> / ' + QUESTIONS.length;
+}
+
+/* ============================================================
+   十四、导出 JSON
+   ============================================================ */
+async function buildFormAnswers(answers){
+  const out = {};
+  for(const q of QUESTIONS){
+    const d = answers[q.id] || { boxes:[''], media:[] };
+    const mediaOut = [];
+    for(const m of (d.media || [])){
+      if(m.type === 'url'){
+        mediaOut.push({ id: m.id, name: m.name || '', kind: m.kind || 'image', type: 'url', data: m.data });
+      }else{
+        try{
+          const rec = await idbGetMedia(m.id);
+          if(rec && rec.blob){
+            const b64 = await blobToDataURL(rec.blob);
+            mediaOut.push({ id: m.id, name: m.name || '', kind: m.kind || 'image', type: 'data', data: b64 });
+          }
+        }catch(e){ console.warn('导出时读取媒体失败', m.id, e); }
+      }
+    }
+    out[q.id] = {
+      num: q.num,
+      title: q.title,
+      boxes: (d.boxes || []).filter(b => b && b.trim()),
+      media: mediaOut
+    };
+  }
+  return out;
+}
+
+function downloadBlob(blob, filename){
+  try{
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    a.style.cssText = 'position:fixed;left:-9999px;top:0;';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      try{ document.body.removeChild(a); }catch(e){}
+      URL.revokeObjectURL(url);
+    }, 2000);
+    return true;
+  }catch(e){ return false; }
+}
+function safeFileName(s){
+  return String(s || '').replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 24) || '未命名';
+}
+
+async function exportForms(forms, filename){
+  if(!forms.length){ toast('没有可导出的表单'); return; }
+  toast('正在打包数据…');
+  const formsData = [];
+  for(const f of forms){
+    formsData.push({
+      id: f.id,
+      name: f.name || '未命名',
+      createdAt: f.createdAt || 0,
+      updatedAt: f.updatedAt || 0,
+      answers: await buildFormAnswers(f.answers)
+    });
+  }
+  const data = {
+    app: 'benwei-survey',
+    appName: '笨蔚的问卷',
+    version: 3,
+    exportedAt: new Date().toISOString(),
+    user: { name: state.user.name || '', avatar: state.user.avatar || '' },
+    forms: formsData
+  };
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+  const ok = downloadBlob(blob, filename);
+  if(ok){
+    const kb = (json.length / 1024).toFixed(1);
+    toast('已导出：' + filename + '（' + kb + ' KB）');
+  }else{
+    toast('导出失败，请重试');
+  }
+}
+
+function exportSingle(fid){
+  const f = state.forms.find(x => x.id === fid);
+  if(!f) return;
+  saveStateNow();
+  const date = new Date().toISOString().slice(0, 10);
+  const fname = '问卷_' + safeFileName(f.name) + '_' + date + '.json';
+  exportForms([f], fname);
+}
+function exportAll(){
+  if(!state.forms.length){ toast('还没有表单'); return; }
+  saveStateNow();
+  const date = new Date().toISOString().slice(0, 10);
+  const fname = '问卷全部_' + safeFileName(state.user.name) + '_' + date + '.json';
+  exportForms(state.forms, fname);
+}
+
+/* ============================================================
+   十五、事件绑定 & 初始化
+   ============================================================ */
+newFormBtn.addEventListener('click', createForm);
+exportAllBtn.addEventListener('click', exportAll);
+window.addEventListener('beforeunload', () => { saveStateNow(); });
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'hidden') saveStateNow();
+});
+
+(async function init(){
+  const saved = loadState();
+  if(saved){
+    state.v = saved.v || 3;
+    state.user = (saved.user && typeof saved.user === 'object')
+      ? { name: saved.user.name || '', avatar: saved.user.avatar || '' }
+      : { name:'', avatar:'' };
+    const rawForms = Array.isArray(saved.forms) ? saved.forms : [];
+    for(const f of rawForms){
+      const answers = await normalizeAndMigrate(f);
+      state.forms.push({
+        id: f.id || uid(),
+        name: f.name || '未命名',
+        createdAt: f.createdAt || Date.now(),
+        updatedAt: f.updatedAt || Date.now(),
+        answers: answers
+      });
+    }
+    state.updatedAt = saved.updatedAt || 0;
+    try{
+      const n = await migrateEmbeddedMedia();
+      if(n) console.log('已迁移媒体', n);
+    }catch(e){ console.warn('媒体迁移失败', e); }
+    saveStateNow();
+  }
+
+  if(state.user.name){
+    showList();
+    loadJSZip().catch(() => {});
+  }else{
+    showLogin();
+  }
+
+  requestAnimationFrame(() => {
+    document.body.classList.add('ready');
+  });
+
+  window.addEventListener('pagehide', () => { saveStateNow(); });
+})();
+
+})();
+</script>
+</body>
+</html>
